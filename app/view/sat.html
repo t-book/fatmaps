@@ -1,0 +1,4 @@
+	var wmsLayer = L.tileLayer.wms('https://geoserver.csgis.de/ows?', {	
+		layers: 'geodaten:luftbilder_free',
+		attribution: "Luftbilder: Bayerische Vermessungsverwaltung"
+	}).addTo(map);

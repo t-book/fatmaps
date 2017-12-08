@@ -1,0 +1,153 @@
+<html>
+    <head>
+        <title>
+        </title>
+        <link href="{{@BASE}}/assets/css/leaflet.css" rel="stylesheet"/>
+        <link href="{{@BASE}}/assets/css/style.css" rel="stylesheet"/>
+        <link href="{{@BASE}}/assets/css/esri-leaflet-geocoder.css" rel="stylesheet" type="text/css" />
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.33.3/es6-shim.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.19.20/system-polyfills.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.9/es5-shim.min.js"></script>
+			<script>
+	    if ( !Function.prototype.hasOwnProperty( 'bind' ) ) {
+	        (function () {
+	            var shim = document.createElement( 'script' );
+	            shim.src = 'es5-shim.js';
+	            var script = document.getElementsByTagName( 'script' )[0];
+	            script.parentNode.insertBefore( shim, script );
+	        }());
+	    }
+	</script>
+		<script src="https://npmcdn.com/angular2/es6/dev/src/testing/shims_for_IE.js"></script>
+
+        <script src="{{@BASE}}/assets/js/leaflet.js"></script>
+        
+        <script src="{{@BASE}}/assets/js/esri-leaflet.js"></script>
+        <script src="{{@BASE}}/assets/js/esri-leaflet-geocoder.js"></script>
+
+      	<script src="{{@BASE}}/assets/js/catiline.js"></script>
+		<script src="{{@BASE}}/assets/js/leaflet.shpfile.js"></script>
+    </head>
+
+<!--
+<iframe src="http://{{@HOST}}{{@BASE}}/{{@PARAMS.client}}" style="border:0px #ffffff none;" name="clientMap" scrolling="no" frameborder="0" marginheight="0px" marginwidth="0px" height="100%" width="100%" allowfullscreen></iframe>
+-->
+
+    <body>
+        <div id="map">
+        </div>
+        <script type="text/javascript">
+	// Initialize the map and assign it to a variable for later use
+	<include href="{{ @views.'lmap.html' }}" />
+	<include href="{{ @views.'sat.html' }}" />
+	<include href="{{ @views.'search.html' }}" />
+	<include href="{{ @views.'jsonfeature.html' }}" />
+
+	/* POLYGON */
+	<check if="{{ @polygon_exists }}">
+		<check if="{{@poly}}">
+			<true><set polystyle="trim(json_encode({{@poly}}), '{}');" /></true>
+		</check>
+
+		var polygonLayer = new L.Shapefile('{{@BASE}}/clients/{{@PARAMS.client}}/polygon.zip', {
+				onEachFeature: function(feature, layer) {
+	            if (feature.properties) {
+	                layer.bindPopup(Object.keys(feature.properties).map(function(k) {
+	                    if(k === 'color'){
+	                        return;
+	                    }
+	                    return k + ": " + feature.properties[k];
+	                }).join("<br />"), {
+	                    maxHeight: 200
+	                });
+	            }
+
+	            
+
+	        },
+				style: function(feature) {
+					var color = feature.properties.color ? feature.properties.color: {{ @poly.color }};
+	            return {
+	                {{@polystyle}},
+	                color: color
+	            }
+	        }
+			});
+			polygonLayer.addTo(map);
+			
+
+			var controlbounds_polygonLayer = window.setInterval(function(){
+			if (polygonLayer.getBounds().isValid()== true){
+				map.fitBounds(polygonLayer.getBounds());
+				window.clearInterval(controlbounds_polygonLayer);
+			}
+			}, 500);
+		</check>
+
+	/* LINE */
+	<check if="{{ @line_exists }}">
+	
+		<check if="{{@line}}">
+			<true><set lineStyling="trim(json_encode({{@line}}), '{}');" /></true>
+		</check>
+
+		var lineLayer = new L.Shapefile('{{@BASE}}/clients/{{@PARAMS.client}}/line.zip', {
+				onEachFeature: function(feature, layer) {
+	            if (feature.properties) {
+	                layer.bindPopup(Object.keys(feature.properties).map(function(k) {
+	                    if(k === 'color'){
+	                        return;
+	                    }
+	                    return k + ": " + feature.properties[k];
+	                }).join("<br />"), {
+	                    maxHeight: 200
+	                });
+	            }
+	        },
+	        style: function(feature) {
+					var color = feature.properties.color ? feature.properties.color: {{ @line.color }};
+	            return {
+	                {{@lineStyling}},
+	                color: color
+	            }}
+			});
+			lineLayer.addTo(map);
+
+		</check>
+
+	/* POINT */
+	<check if="{{ @point_exists }}">
+	
+		<check if="{{@point}}">
+			<true><set pointStyling="trim(json_encode({{@point}}), '{}');" /></true>
+		</check>
+
+		var pointLayer = new L.Shapefile('{{@BASE}}/clients/{{@PARAMS.client}}/point.zip', {
+				onEachFeature: function(feature, layer) {
+	            if (feature.properties) {
+	                layer.bindPopup(Object.keys(feature.properties).map(function(k) {
+	                    if(k === 'color'){
+	                        return;
+	                    }
+	                    return k + ": " + feature.properties[k];
+	                }).join("<br />"), {
+	                    maxHeight: 200
+	                });
+	            }
+	        },
+	        pointToLayer: function (feature, latlng) {
+				var fillColor = feature.properties.color ? feature.properties.color: {{ @point.fillColor }};
+     			   return L.circleMarker(latlng, { {{@pointStyling }},
+	                fillColor: fillColor });
+    			}
+			});
+			pointLayer.addTo(map);
+
+		</check>
+
+
+    </script>
+
+    </body>
+</html>

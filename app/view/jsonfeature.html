@@ -1,0 +1,10 @@
+	/* GEOJSON */
+	function onEachFeature(feature, layer) {
+	  var popupContent = "";
+	  if (feature.properties) {
+		Object.keys(feature.properties).forEach(function(key,index) {
+		    popupContent += key+': '+feature.properties[key]+'<br/>'
+		});
+	  }
+	  layer.bindPopup(popupContent);
+	}
